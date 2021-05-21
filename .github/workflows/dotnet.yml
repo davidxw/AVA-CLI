@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: src/lva
+        working-directory: src/ava
 
     steps:
     - uses: actions/checkout@v2
