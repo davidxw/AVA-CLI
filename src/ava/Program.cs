@@ -20,8 +20,8 @@ namespace ava
         {
             var rootCommand = new RootCommand();
 
-            // TODO - just show help if no subcommands are provided
-
+            rootCommand.Handler = CommandHandler.Create(rootCommandHandler);
+            
             // connect
 
             var connectCommand = new Command("connect");
@@ -174,7 +174,7 @@ namespace ava
         {
             var connectionSettings = new ConnectionSettings { IoTHubConnectionString = connectionString, DeviceId = deviceId, ModuleId = moduleId };
 
-            File.WriteAllText(CONNECTION_SETTINGS_FILENAME, JsonConvert.SerializeObject(connectionSettings));
+            File.WriteAllText(GetConnectionSettingsFilePath(), JsonConvert.SerializeObject(connectionSettings));
 
             Console.WriteLine("Connection details saved");
         }
@@ -344,13 +344,13 @@ namespace ava
             WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName, "deleted", null, $"is in an active state and cannot be deleted. Run 'ava instance deactivate {instanceName}' to decativate.");
         }
 
-        private static ConnectionSettings GetConnectionSettings()
+        private static ConnectionSettings GetConnectionSettings(bool silent = false)
         {
             ConnectionSettings connectionSettings = null;
 
             try
             {
-                var connectSettingsFileContent = File.ReadAllText(CONNECTION_SETTINGS_FILENAME);
+                var connectSettingsFileContent = File.ReadAllText(GetConnectionSettingsFilePath());
 
                 if (string.IsNullOrEmpty(connectSettingsFileContent))
                 {
@@ -361,9 +361,12 @@ namespace ava
             }
             catch (Exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine("Could not load connection details. Run 'lva connect'");
-                Console.ResetColor();
+                if (!silent)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Error.WriteLine("Could not load connection details. Run 'lva connect'");
+                    Console.ResetColor();
+                }
             }
 
             return connectionSettings;
@@ -402,5 +405,63 @@ namespace ava
                     break;
             }
         }
+
+        private static string GetConnectionSettingsFilePath()
+        {
+            var connectionSettingFileDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ava-cli");
+
+            Directory.CreateDirectory(connectionSettingFileDir);
+
+            return Path.Combine(connectionSettingFileDir, CONNECTION_SETTINGS_FILENAME);
+        }
+
+
+        private static void rootCommandHandler()
+        {
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("AVA CLI - a simple CLI for Azure Video Analytics");
+            Console.ResetColor();
+            Console.WriteLine();
+
+            var connectionSettings = GetConnectionSettings(true);
+
+            if (connectionSettings == null)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"No AVA connection settings set - run 'lva connect'");
+                Console.ResetColor();
+            }
+            else
+            {
+                Console.WriteLine("Current connection settings:");
+                Console.WriteLine($"  IoT Hub:   {connectionSettings.IoTHubConnectionString}");
+                Console.WriteLine($"  Device Id: {connectionSettings.DeviceId}");
+                Console.WriteLine($"  Module Id: {connectionSettings.ModuleId}");
+            }
+
+            Console.WriteLine();
+
+            Console.WriteLine("Commands:");
+            Console.WriteLine("  connect <connectionString> <deviceId> <moduleId>");
+            Console.WriteLine("  topology list");
+            Console.WriteLine("  topology get <topologyName>");
+            Console.WriteLine("  topology set <toplogyFilePath>");
+            Console.WriteLine("  topology delete <topologyName>");
+            Console.WriteLine("  instance list");
+            Console.WriteLine("  instance get <intanceName>");
+            Console.WriteLine("  instance set <intanceName> <topologyName> -p <paramName=paramValue1");
+            Console.WriteLine("  instance delete <intanceName>");
+            Console.WriteLine("  instance activate <intanceName>");
+            Console.WriteLine("  instance deactivate <intanceName>");
+
+            Console.WriteLine();
+
+            Console.WriteLine("Use the -h, -? option on any command for more details");
+
+            Console.WriteLine();
+
+        }
+
     }
 }
