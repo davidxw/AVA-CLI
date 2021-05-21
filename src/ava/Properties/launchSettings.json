@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ava": {
+      "commandName": "Project",
+      "commandLineArgs": "instance set rtspsim Obscureandsendtopubsub -p rtspUrl=rtsp://10.48.194.117:554"
+    }
+  }
+}
