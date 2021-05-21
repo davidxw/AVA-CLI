@@ -3,6 +3,8 @@ name: .NET
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'src/lva'
   pull_request:
     branches: [ main ]
 
@@ -10,6 +12,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/lva
 
     steps:
     - uses: actions/checkout@v2
