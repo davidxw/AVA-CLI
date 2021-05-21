@@ -12,7 +12,7 @@ jobs:
 
     steps:     
     - uses: naminodarie/get-net-sdk-project-versions-action@v1
-    - name: get-version
+      id: get-version
       with:
         proj-path: ava.csproj
     - run: echo "${{steps.get-version.outputs.version}}"
