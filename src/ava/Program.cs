@@ -364,7 +364,7 @@ namespace ava
                 if (!silent)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Error.WriteLine("Could not load connection details. Run 'lva connect'");
+                    Console.Error.WriteLine("Could not load connection details. Run 'ava connect'");
                     Console.ResetColor();
                 }
             }
@@ -429,7 +429,7 @@ namespace ava
             if (connectionSettings == null)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"No AVA connection settings set - run 'lva connect'");
+                Console.WriteLine($"No AVA connection settings set - run 'ava connect'");
                 Console.ResetColor();
             }
             else
