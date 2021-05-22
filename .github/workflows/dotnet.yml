@@ -35,10 +35,14 @@ jobs:
     - name: Publish - Linux
       run: dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained true -c Release
 
-    - name: Prepare Releases
+    - name: Prepare Linux Release
       run: |
-        tar czf ava_win_${{steps.get-version.outputs.version}}.tar.gz bin/Release/net5.0/win-x64/publish
         tar czf ava_linux_${{steps.get-version.outputs.version}}.tar.gz bin/Release/net5.0/linux-x64/publish
+
+    - uses: papeloto/action-zip@v1
+      with:
+        files: src/ava/bin/Release/net5.0/linux-x64/publish/
+        dest: src/ava/ava_win_${{steps.get-version.outputs.version}}.zip
 
     - name: List
       run: ls -alt
