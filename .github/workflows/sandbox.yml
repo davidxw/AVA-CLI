@@ -15,7 +15,7 @@ jobs:
     - name: List
       run: ls -alt
     - name: Get version number
-      uses: naminodarie/get-net-sdk-project-versions-action@v1
+      uses: naminodarie/get-net-sdk-project-versions-action@v1.1.1
       id: get-version
       with:
         proj-path: ./ava.csproj
