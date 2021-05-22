@@ -12,19 +12,21 @@ jobs:
 
     steps:        
     - uses: actions/checkout@v2
+    - name: Get version number
     - uses: naminodarie/get-net-sdk-project-versions-action@v1
       id: get-version
       with:
         proj-path: ava.csproj
     - name: List
-    - run: ls -alt
-    - run: echo "${{steps.get-version.outputs.version}}"
-    - run: echo "${{steps.get-version.outputs.version-prefix}}" 
-    - run: echo "${{steps.get-version.outputs.version-suffix}}" 
-    - run: echo "${{steps.get-version.outputs.package-version}}" 
-    - run: echo "${{steps.get-version.outputs.assembly-version}}" 
-    - run: echo "${{steps.get-version.outputs.file-version}}" 
-    - run: echo "${{steps.get-version.outputs.informational-version}}" 
+      run: |
+        ls -alt
+        echo "${{steps.get-version.outputs.version}}"
+        echo "${{steps.get-version.outputs.version-prefix}}" 
+        echo "${{steps.get-version.outputs.version-suffix}}" 
+        echo "${{steps.get-version.outputs.package-version}}" 
+        echo "${{steps.get-version.outputs.assembly-version}}" 
+        echo "${{steps.get-version.outputs.file-version}}" 
+        echo "${{steps.get-version.outputs.informational-version}}" 
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
