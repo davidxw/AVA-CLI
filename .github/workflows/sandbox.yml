@@ -18,7 +18,7 @@ jobs:
       uses: naminodarie/get-net-sdk-project-versions-action@v1
       id: get-version
       with:
-        proj-path: ava.csproj
+        proj-path: ./ava.csproj
     - name: Show versions
       run: |
         echo "${{steps.get-version.outputs.version}}"
