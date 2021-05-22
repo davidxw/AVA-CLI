@@ -37,8 +37,8 @@ jobs:
 
     - name: Prepare Releases
       run: |
-        tar -c ava_win_${{steps.get-version.outputs.version}}.gz bin/Release/net5.0/win-x64/publish
-        tar -c ava_linux_${{steps.get-version.outputs.version}}.gz bin/Release/net5.0/linux-x64/publish
+        tar cz ava_win_${{steps.get-version.outputs.version}}.tar.gz bin/Release/net5.0/win-x64/publish
+        tar cz ava_linux_${{steps.get-version.outputs.version}}.tar.gz bin/Release/net5.0/linux-x64/publish
 
     - name: List
       run: ls -alt
