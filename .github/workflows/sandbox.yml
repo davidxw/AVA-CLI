@@ -17,13 +17,13 @@ jobs:
         ls -alt
         cat ava.csproj
         cat ./ava.csproj
-        cat src/ava/ava.csproj
+        cat ./src/ava/ava.csproj
 
     - name: Get version number
       uses: naminodarie/get-net-sdk-project-versions-action@v1.1.1
       id: get-version
       with:
-        proj-path: ./ava.csproj
+        proj-path: ./src/ava/ava.csproj
     - name: Show versions
       run: |
         echo "${{steps.get-version.outputs.version}}"
