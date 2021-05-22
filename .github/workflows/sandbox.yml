@@ -13,7 +13,7 @@ jobs:
     steps:        
     - uses: actions/checkout@v2
     - name: Get version number
-    - uses: naminodarie/get-net-sdk-project-versions-action@v1
+      uses: naminodarie/get-net-sdk-project-versions-action@v1
       id: get-version
       with:
         proj-path: ava.csproj
