@@ -12,14 +12,15 @@ jobs:
 
     steps:        
     - uses: actions/checkout@v2
+    - name: List
+      run: ls -alt
     - name: Get version number
       uses: naminodarie/get-net-sdk-project-versions-action@v1
       id: get-version
       with:
         proj-path: ava.csproj
-    - name: List
+    - name: Show versions
       run: |
-        ls -alt
         echo "${{steps.get-version.outputs.version}}"
         echo "${{steps.get-version.outputs.version-prefix}}" 
         echo "${{steps.get-version.outputs.version-suffix}}" 
