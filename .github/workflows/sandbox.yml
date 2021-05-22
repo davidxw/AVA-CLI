@@ -17,7 +17,7 @@ jobs:
         ls -alt
         cat ava.csproj
         cat ./ava.csproj
-        cat ./src/ava/ava.csproj
+        cat /src/ava/ava.csproj
 
     - name: Get version number
       uses: naminodarie/get-net-sdk-project-versions-action@v1.1.1
