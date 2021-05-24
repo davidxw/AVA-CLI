@@ -45,22 +45,12 @@ jobs:
         files: src/ava/bin/Release/net5.0/linux-x64/publish/
         dest: src/ava/ava_win_${{steps.get-version.outputs.version}}.zip
 
-    - name: Create Linux Release
+    - name: Create Release
       uses: ncipollo/release-action@v1
       if: ${{ endsWith(steps.get-version.outputs.version, '0') }}
       with:
-        artifacts: "src/ava/ava_linux_${{steps.get-version.outputs.version}}.tar.gz"
-        name: "Linux x64 ${{steps.get-version.outputs.version}}"
-        tag: "v${{steps.get-version.outputs.version}}"
-        draft: true
-        token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Create Windows Release
-      uses: ncipollo/release-action@v1
-      if: ${{ endsWith(steps.get-version.outputs.version, '0') }}
-      with:
-        artifacts: "src/ava/ava_win_${{steps.get-version.outputs.version}}.zip"
-        name: "Windows x64 ${{steps.get-version.outputs.version}}"
+        artifacts: "src/ava/ava_linux_${{steps.get-version.outputs.version}}.tar.gz, src/ava/ava_win_${{steps.get-version.outputs.version}}.zip"
+        name: "Release ${{steps.get-version.outputs.version}}"
         tag: "v${{steps.get-version.outputs.version}}"
         draft: true
         token: ${{ secrets.GITHUB_TOKEN }}
