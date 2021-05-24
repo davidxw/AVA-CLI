@@ -49,7 +49,8 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "src/ava/ava_linux_${{steps.get-version.outputs.version}}.tar.gz"
-        name: "Linux Release ${{steps.get-version.outputs.version}}"
+        name: "Linux x64 Release ${{steps.get-version.outputs.version}}"
+        tag: "inux-x64_${{steps.get-version.outputs.version}}"
         draft: true
         token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -57,6 +58,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "src/ava/ava_win_${{steps.get-version.outputs.version}}.zip"
-        name: "Windows Release ${{steps.get-version.outputs.version}}"
+        name: "Windows x64 Release ${{steps.get-version.outputs.version}}"
+        tag: "win-x64_${{steps.get-version.outputs.version}}"
         draft: true
         token: ${{ secrets.GITHUB_TOKEN }}
