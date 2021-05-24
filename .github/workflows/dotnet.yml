@@ -39,11 +39,22 @@ jobs:
       run: |
         tar czf ava_linux_${{steps.get-version.outputs.version}}.tar.gz bin/Release/net5.0/linux-x64/publish
 
-    - uses: papeloto/action-zip@v1
+    - name: Prepare Windows Release
+      uses: papeloto/action-zip@v1
       with:
         files: src/ava/bin/Release/net5.0/linux-x64/publish/
         dest: src/ava/ava_win_${{steps.get-version.outputs.version}}.zip
 
-    - name: List
-      run: ls -alt
+    - name: Create Linux Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "src/ava/ava_linux_${{steps.get-version.outputs.version}}.zip"
+        name: "Linux Release ${{steps.get-version.outputs.version}}"
+        draft: true
 
+    - name: Create Windows Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "src/ava/ava_win_${{steps.get-version.outputs.version}}.zip"
+        name: "Windows Release ${{steps.get-version.outputs.version}}"
+        draft: true
