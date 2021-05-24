@@ -50,7 +50,7 @@ jobs:
       with:
         artifacts: "src/ava/ava_linux_${{steps.get-version.outputs.version}}.tar.gz"
         name: "Linux x64 ${{steps.get-version.outputs.version}}"
-        tag: "{{steps.get-version.outputs.version}}"
+        tag: "v{{steps.get-version.outputs.version}}"
         draft: true
         token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -59,6 +59,6 @@ jobs:
       with:
         artifacts: "src/ava/ava_win_${{steps.get-version.outputs.version}}.zip"
         name: "Windows x64 ${{steps.get-version.outputs.version}}"
-        tag: "{{steps.get-version.outputs.version}}"
+        tag: "v{{steps.get-version.outputs.version}}"
         draft: true
         token: ${{ secrets.GITHUB_TOKEN }}
