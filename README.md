@@ -1,7 +1,7 @@
 # AVA-CLI
 A simple CLI for Azure Video Analytics
 
-![example workflow](https://github.com/github/docs/actions/workflows/dotnet.yml/badge.svg)
+![Build and Release](https://github.com/davidxw/ava-cli/actions/workflows/dotnet.yml/badge.svg)
 
 TO DO:
 
