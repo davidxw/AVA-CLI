@@ -48,9 +48,10 @@ jobs:
     - name: Create Linux Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "src/ava/ava_linux_${{steps.get-version.outputs.version}}.zip"
+        artifacts: "src/ava/ava_linux_${{steps.get-version.outputs.version}}.tar.gz"
         name: "Linux Release ${{steps.get-version.outputs.version}}"
         draft: true
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create Windows Release
       uses: ncipollo/release-action@v1
@@ -58,3 +59,4 @@ jobs:
         artifacts: "src/ava/ava_win_${{steps.get-version.outputs.version}}.zip"
         name: "Windows Release ${{steps.get-version.outputs.version}}"
         draft: true
+        token: ${{ secrets.GITHUB_TOKEN }}
