@@ -1,4 +1,4 @@
-# AVA-CLI
+# AVA CLI
 
 ![Build and Release](https://github.com/davidxw/ava-cli/actions/workflows/dotnet.yml/badge.svg)
 
@@ -11,7 +11,7 @@ ava \<command(s)\> \<parameters(s)\> \<options(s)\>
 
 ### Commands
 
-connection set \<connectionString\> \<deviceId\> \<moduleId\>
+connection set \<connectionString\> \<deviceId\> \<moduleId\>  
 connection clear
 
 topology list 
