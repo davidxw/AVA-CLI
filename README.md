@@ -11,7 +11,8 @@ ava \<command(s)\> \<parameters(s)\> \<options(s)\>
 
 ### Commands
 
-connect \<connectionString\> \<deviceId\> \<moduleId\>
+connection set \<connectionString\> \<deviceId\> \<moduleId\>
+connection clear
 
 topology list 
 topology get \<topologyName\>  

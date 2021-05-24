@@ -1,8 +1,7 @@
 {
   "profiles": {
     "ava": {
-      "commandName": "Project",
-      "commandLineArgs": "instance list -q \"$filter=State eq \\'Active\\'\""
+      "commandName": "Project"
     }
   }
 }
