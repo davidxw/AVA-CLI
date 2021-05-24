@@ -4,6 +4,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -50,7 +51,13 @@ namespace ava
             // ## topology list 
 
             var topologyListCommand = new Command("list");
-            topologyListCommand.Handler = CommandHandler.Create(topologyListCommandHandler);
+
+            //var tgo = new Option<string>("--query", "Optionally apply an ODATA query to the results", ArgumentArity.ZeroOrOne);
+            //tgo.AddAlias("-q");
+
+            //topologyListCommand.AddOption(tgo);
+
+            topologyListCommand.Handler = CommandHandler.Create<string>(topologyListCommandHandler);
 
             topologyCommand.Add(topologyListCommand);
 
@@ -98,7 +105,13 @@ namespace ava
             // ## instance list 
 
             var instanceListCommand = new Command("list");
-            instanceListCommand.Handler = CommandHandler.Create(instanceListCommandHandler);
+
+            //var ilo = new Option<string>("--query", "Optionally apply an ODATA query to the results", ArgumentArity.ZeroOrOne);
+            //ilo.AddAlias("-q");
+
+            //instanceListCommand.AddOption(ilo);
+
+            instanceListCommand.Handler = CommandHandler.Create<string>(instanceListCommandHandler);
 
             instanceCommand.Add(instanceListCommand);
 
@@ -164,8 +177,14 @@ namespace ava
 
             instanceCommand.Add(instanceDeleteCommand);
 
+
+            var clb = new CommandLineBuilder(rootCommand);
+            clb.ResponseFileHandling = System.CommandLine.Parsing.ResponseFileHandling.Disabled;
+
+            var parser = clb.Build();
+
             // Parse the incoming args and invoke the required handler
-            var result = await rootCommand.InvokeAsync(args);
+            var result = await parser.InvokeAsync(args);
 
             return result;
         }
@@ -179,14 +198,14 @@ namespace ava
             Console.WriteLine("Connection details saved");
         }
 
-        private async static Task topologyListCommandHandler()
+        private async static Task topologyListCommandHandler(string query)
         {
             var connection = GetConnectionSettings();
 
             if (connection == null) return;
 
             var command = new AvaCommand(connection, "GraphTopologyList");
-            var output = await command.Execute();
+            var output = await command.ExecuteList(query);
 
             if (!output.IsSuccess)
             {
@@ -247,14 +266,14 @@ namespace ava
             WriteResult(output, GRAPH_TOPOLOGY_LABEL, topologyName, "deleted", null, "is being referenced by more than one graph instance and cannot be deleted");
         }
 
-        private async static Task instanceListCommandHandler()
+        private async static Task instanceListCommandHandler(string query)
         {
             var connection = GetConnectionSettings();
 
             if (connection == null) return;
 
             var command = new AvaCommand(connection, "GraphInstanceList");
-            var output = await command.Execute();
+            var output = await command.ExecuteList(query);
 
             if (!output.IsSuccess)
             {
@@ -300,7 +319,7 @@ namespace ava
             var command = new AvaCommand(connection, "GraphInstanceSet");
             var output = await command.Execute(instanceName, topologyName, paramater);
 
-            WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName, null, null, " already exists.");
+            WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName, "updated", "created", " already exists.");
 
             if (output.IsSuccess)
             {
@@ -401,7 +420,8 @@ namespace ava
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"Operation failed - response code {output.ResponseCode}");
                     Console.ResetColor();
-                    Console.WriteLine(output.ResponseBodyString);
+                    if (!string.IsNullOrEmpty(output.ResponseBody))
+                         Console.WriteLine(output.ResponseBodyString);
                     break;
             }
         }
