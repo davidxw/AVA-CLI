@@ -47,7 +47,7 @@ jobs:
 
     - name: Create Linux Release
       uses: ncipollo/release-action@v1
-      if: ${{ endsWith(steps.get-version.outputs.version, "0") }}
+      if: ${{ endsWith(steps.get-version.outputs.version, '0') }}
       with:
         artifacts: "src/ava/ava_linux_${{steps.get-version.outputs.version}}.tar.gz"
         name: "Linux x64 ${{steps.get-version.outputs.version}}"
@@ -57,7 +57,7 @@ jobs:
 
     - name: Create Windows Release
       uses: ncipollo/release-action@v1
-      if: ${{ endsWith(steps.get-version.outputs.version, "0") }}
+      if: ${{ endsWith(steps.get-version.outputs.version, '0') }}
       with:
         artifacts: "src/ava/ava_win_${{steps.get-version.outputs.version}}.zip"
         name: "Windows x64 ${{steps.get-version.outputs.version}}"
