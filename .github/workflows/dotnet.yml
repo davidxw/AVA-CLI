@@ -39,7 +39,7 @@ jobs:
       run: |
         mkdir release
         cp bin/Release/net5.0/linux-x64/publish/ava release
-        tar czf ava_linux_${{steps.get-version.outputs.version}}.tar.gz release 
+        tar -C release -czf ava_linux_${{steps.get-version.outputs.version}}.tar.gz . 
 
     - name: Prepare Windows Release
       uses: papeloto/action-zip@v1
