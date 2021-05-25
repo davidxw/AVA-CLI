@@ -257,9 +257,19 @@ namespace ava
                 var f = "{0,-30} {1,-30}";
 
                 Console.WriteLine(String.Format(f, "Name", "Date Created (UTC)"));
-                foreach (var t in output.ResponseBody.value)
+                try
+                    {
+                    foreach (var t in output.ResponseBody.value)
+                    {
+                        Console.WriteLine(String.Format(f, t.name, t.systemData.createdAt));
+                    }
+                }
+                catch 
                 {
-                    Console.WriteLine(String.Format(f, t.name, t.systemData.createdAt));
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Failed to parse response from AVA. The raw response received was:");
+                    Console.ResetColor();
+                    Console.WriteLine(output.ResponseBody);
                 }
             }
         }
@@ -309,9 +319,20 @@ namespace ava
                 var f = "{0,-30} {1,-30} {2, -10} {3, -30}";
 
                 Console.WriteLine(String.Format(f, "Name", "Date Created (UTC)", "State", "Topology"));
-                foreach (var t in output.ResponseBody.value)
+
+                try
                 {
-                    Console.WriteLine(String.Format(f, t.name, t.systemData.createdAt, t.properties.state, t.properties.topologyName));
+                    foreach (var t in output.ResponseBody.value)
+                    {
+                        Console.WriteLine(String.Format(f, t.name, t.systemData.createdAt, t.properties.state, t.properties.topologyName));
+                    }
+                }
+                catch 
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Failed to parse response from AVA. The raw response received was:");
+                    Console.ResetColor();
+                    Console.WriteLine(output.ResponseBody);
                 }
             }
         }
