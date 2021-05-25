@@ -1,7 +1,8 @@
 {
   "profiles": {
     "ava": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "topology list --deviceId otherDevice"
     }
   }
 }

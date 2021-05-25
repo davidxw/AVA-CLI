@@ -8,6 +8,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ava
 {
@@ -20,7 +21,7 @@ namespace ava
         const string GRAPH_TOPOLOGY_LABEL = "Graph topology";
         const string GRAPH_INSTANCE_LABEL = "Graph instance";
 
-        static List<string> CONNECTIONS_REQUIRED = new List<String> {"topology", "instance"};
+        static List<string> CONNECTIONS_REQUIRED = new List<String> { "topology", "instance" };
 
         static ConnectionSettings _connectionSettings = null;
 
@@ -28,8 +29,18 @@ namespace ava
         {
             var rootCommand = new RootCommand();
 
+            var globalOptionDeviceId = new Option<string>("--deviceId", "Override the device Id in connection settings", ArgumentArity.ExactlyOne);
+            globalOptionDeviceId.AddAlias("-d");
+
+            rootCommand.AddGlobalOption(globalOptionDeviceId);
+
+            var globalOptionModuleId = new Option<string>("--moduleId", "Override the module Id in connection settings", ArgumentArity.ExactlyOne);
+            globalOptionModuleId.AddAlias("-m");
+
+            rootCommand.AddGlobalOption(globalOptionModuleId);
+
             rootCommand.Handler = CommandHandler.Create(rootCommandHandler);
-            
+
             // connection
 
             var connectCommand = new Command("connection");
@@ -201,7 +212,7 @@ namespace ava
             clb.UseDefaults();
             clb.ResponseFileHandling = System.CommandLine.Parsing.ResponseFileHandling.Disabled;
 
-            clb.UseMiddleware(async (context, next) => 
+            clb.UseMiddleware(async (context, next) =>
             {
                 if (context.ParseResult.Tokens.Count >= 2 && CONNECTIONS_REQUIRED.Contains(context.ParseResult.Tokens[0].Value))
                 {
@@ -210,6 +221,16 @@ namespace ava
 
                     if (_connectionSettings != null)
                     {
+                        if (context.ParseResult.HasOption("-d") && !string.IsNullOrEmpty((string)context.ParseResult.ValueForOption("-d")))
+                        {
+                            _connectionSettings.DeviceId = (string)context.ParseResult.ValueForOption("-d");
+                        }
+
+                        if (context.ParseResult.HasOption("-m") && !string.IsNullOrEmpty((string)context.ParseResult.ValueForOption("-m")))
+                        {
+                            _connectionSettings.ModuleId = (string)context.ParseResult.ValueForOption("-m");
+                        }
+
                         await next(context);
                     }
                 }
@@ -217,7 +238,7 @@ namespace ava
                 {
                     await next(context);
                 }
-            }); 
+            });
 
             var parser = clb.Build();
 
@@ -258,18 +279,18 @@ namespace ava
 
                 Console.WriteLine(String.Format(f, "Name", "Date Created (UTC)"));
                 try
-                    {
+                {
                     foreach (var t in output.ResponseBody.value)
                     {
                         Console.WriteLine(String.Format(f, t.name, t.systemData.createdAt));
                     }
                 }
-                catch 
+                catch
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Failed to parse response from AVA. The raw response received was:");
                     Console.ResetColor();
-                    Console.WriteLine(output.ResponseBody);
+                    Console.WriteLine(output.ResponseBodyString);
                 }
             }
         }
@@ -327,12 +348,12 @@ namespace ava
                         Console.WriteLine(String.Format(f, t.name, t.systemData.createdAt, t.properties.state, t.properties.topologyName));
                     }
                 }
-                catch 
+                catch
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Failed to parse response from AVA. The raw response received was:");
                     Console.ResetColor();
-                    Console.WriteLine(output.ResponseBody);
+                    Console.WriteLine(output.ResponseBodyString);
                 }
             }
         }
@@ -399,14 +420,14 @@ namespace ava
 
                 if (string.IsNullOrEmpty(connectSettingsFileContent))
                 {
-                    throw(new Exception());
+                    throw (new Exception());
                 }
 
                 connectionSettings = JsonConvert.DeserializeObject<ConnectionSettings>(connectSettingsFileContent);
 
                 if (string.IsNullOrEmpty(connectionSettings.IoTHubConnectionString) || string.IsNullOrEmpty(connectionSettings.DeviceId) || string.IsNullOrEmpty(connectionSettings.ModuleId))
                 {
-                    throw(new Exception());
+                    throw (new Exception());
                 }
             }
             catch (Exception)
@@ -451,7 +472,7 @@ namespace ava
                     Console.WriteLine($"Operation failed - response code {output.ResponseCode}");
                     Console.ResetColor();
                     if (!string.IsNullOrEmpty(output.ResponseBody))
-                         Console.WriteLine(output.ResponseBodyString);
+                        Console.WriteLine(output.ResponseBodyString);
                     break;
             }
         }
@@ -501,6 +522,9 @@ namespace ava
             Console.WriteLine("  instance deactivate <intanceName>");
 
             Console.WriteLine();
+            Console.WriteLine("For all of the topology and instance commands, using option -d <deviceId> and/or -m <moduleId> to override the device and module Id specified in the default connection.");
+            Console.WriteLine();
+                
 
             Console.WriteLine("Use the -h, -? option on any command for more details");
 

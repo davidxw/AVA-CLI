@@ -26,6 +26,8 @@ instance delete \<intanceName\>
 instance activate \<intanceName\>  
 instance deactivate \<intanceName\> 
 
+For all of the topology and instance commands, using option -d \<deviceId\> and/or -m \<moduleId\> to override the device and module Id specified in the default connection. This can be useful if you need to script AVA commands accross a number of devices.
+
 ## Installation
 * Download the latst release from the [releases](https://github.com/davidxw/AVA-CLI/releases) page
 * Extract the files from the release into a folder, and create a PATH to the folder
