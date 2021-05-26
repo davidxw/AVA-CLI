@@ -18,13 +18,7 @@ namespace ava
             get; private set;
         }
 
-        public bool IsSuccess 
-        {
-            get
-            {
-                return ResponseCode <= 204;
-            }
-        }
+        public bool IsSuccess => ResponseCode <= 204;
 
         public dynamic ResponseBody {
             get; private set;
@@ -52,9 +46,7 @@ namespace ava
             catch { }
         }
 
-        public override string ToString()
-        {
-            return $"## {ResponseCode}{Environment.NewLine}{ResponseBodyString}";
-        }
+        public override string ToString() => $"## {ResponseCode}{Environment.NewLine}{ResponseBodyString}";
+
     }
 }

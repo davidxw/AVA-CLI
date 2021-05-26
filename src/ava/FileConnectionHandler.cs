@@ -18,21 +18,9 @@ namespace ava
 
         public string ModuleId { get; set; }
 
-        ConnectionSettings ConnectionSettings
-        {
-            get
-            {
-                return new ConnectionSettings { IoTHubConnectionString = IoTHubConnectionString, DeviceId = DeviceId, ModuleId = ModuleId };
-            }
-        }
+        public ConnectionSettings ConnectionSettings => new ConnectionSettings { IoTHubConnectionString = IoTHubConnectionString, DeviceId = DeviceId, ModuleId = ModuleId };
 
-        public bool IsValid
-        {
-            get
-            {
-                return (!string.IsNullOrEmpty(IoTHubConnectionString) && !string.IsNullOrEmpty(DeviceId) && !string.IsNullOrEmpty(ModuleId));
-            }
-        }
+        public bool IsValid => !string.IsNullOrEmpty(IoTHubConnectionString) && !string.IsNullOrEmpty(DeviceId) && !string.IsNullOrEmpty(ModuleId);
 
         public FileConnectionHandler()
         {
@@ -81,7 +69,7 @@ namespace ava
         {
             var connectionSettingFileDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ava-cli");
 
-            _ = Directory.CreateDirectory(connectionSettingFileDir);
+            Directory.CreateDirectory(connectionSettingFileDir);
 
             return Path.Combine(connectionSettingFileDir, CONNECTION_SETTINGS_FILENAME);
         }
