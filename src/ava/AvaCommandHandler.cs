@@ -21,8 +21,8 @@ namespace ava
 
         const string CONNECTION_SETTINGS_FILENAME = "connection.json";
 
-        const string GRAPH_TOPOLOGY_LABEL = "Graph topology";
-        const string GRAPH_INSTANCE_LABEL = "Graph instance";
+        const string PIPELINE_TOPOLOGY_LABEL = "Pipeline topology";
+        const string PIPELINE_LABEL = "Pipeline";
 
         public AvaCommandHandler(IConsole console, IConnectionHandler connection)
         {
@@ -71,13 +71,13 @@ namespace ava
 
             var command = new AvaDirectMethod(
                 _connection.ConnectionSettings, 
-                "GraphTopologyList");
+                "pipelineTopologyList");
 
             var output = await command.ExecuteList(query);
 
             if (!output.IsSuccess)
             {
-                WriteResult(output, GRAPH_TOPOLOGY_LABEL);
+                WriteResult(output, PIPELINE_TOPOLOGY_LABEL);
             }
             else
             {
@@ -110,12 +110,12 @@ namespace ava
             if (!ValidateConnectionDetails())
                 return;
 
-            var command = new AvaDirectMethod(_connection.ConnectionSettings, "GraphTopologyGet");
+            var command = new AvaDirectMethod(_connection.ConnectionSettings, "pipelineTopologyGet");
             var output = await command.Execute(topologyName);
 
             if (!output.IsSuccess)
             {
-                WriteResult(output, GRAPH_TOPOLOGY_LABEL, topologyName);
+                WriteResult(output, PIPELINE_TOPOLOGY_LABEL, topologyName);
             }
             else
             {
@@ -128,10 +128,10 @@ namespace ava
             if (!ValidateConnectionDetails())
                 return;
 
-            var command = new AvaDirectMethod(_connection.ConnectionSettings, "GraphTopologySet");
+            var command = new AvaDirectMethod(_connection.ConnectionSettings, "pipelineTopologySet");
             var output = await command.Execute(topologyFile);
 
-            WriteResult(output, GRAPH_TOPOLOGY_LABEL);
+            WriteResult(output, PIPELINE_TOPOLOGY_LABEL);
         }
 
         public async Task topologyDeleteCommandHandler(string topologyName)
@@ -139,23 +139,23 @@ namespace ava
             if (!ValidateConnectionDetails())
                 return;
 
-            var command = new AvaDirectMethod(_connection.ConnectionSettings, "GraphTopologyDelete");
+            var command = new AvaDirectMethod(_connection.ConnectionSettings, "pipelineTopologyDelete");
             var output = await command.Execute(topologyName);
 
-            WriteResult(output, GRAPH_TOPOLOGY_LABEL, topologyName, "deleted", null, "is being referenced by more than one graph instance and cannot be deleted");
+            WriteResult(output, PIPELINE_TOPOLOGY_LABEL, topologyName, "deleted", null, "is being referenced by more than one pipeline and cannot be deleted");
         }
 
-        public async Task instanceListCommandHandler(string query)
+        public async Task pipelineListCommandHandler(string query)
         {
             if (!ValidateConnectionDetails())
                 return;
 
-            var command = new AvaDirectMethod(_connection.ConnectionSettings, "GraphInstanceList");
+            var command = new AvaDirectMethod(_connection.ConnectionSettings, "livePipelineList");
             var output = await command.ExecuteList(query);
 
             if (!output.IsSuccess)
             {
-                WriteResult(output, GRAPH_INSTANCE_LABEL);
+                WriteResult(output, PIPELINE_LABEL);
             }
             else
             {
@@ -184,17 +184,17 @@ namespace ava
             }
         }
 
-        public async Task instanceGetCommandHandler(string instanceName)
+        public async Task pipelineGetCommandHandler(string pipelineName)
         {
             if (!ValidateConnectionDetails())
                 return;
 
-            var command = new AvaDirectMethod(_connection.ConnectionSettings, "GraphInstanceGet");
-            var output = await command.Execute(instanceName);
+            var command = new AvaDirectMethod(_connection.ConnectionSettings, "livePipelineGet");
+            var output = await command.Execute(pipelineName);
 
             if (!output.IsSuccess)
             {
-                WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName);
+                WriteResult(output, PIPELINE_LABEL, pipelineName);
             }
             else
             {
@@ -202,15 +202,15 @@ namespace ava
             }
         }
 
-        public async Task instanceSetCommandHandler(string instanceName, string topologyName, string[] paramater)
+        public async Task pipelineSetCommandHandler(string pipelineName, string topologyName, string[] paramater)
         {
             if (!ValidateConnectionDetails())
                 return;
 
-            var command = new AvaDirectMethod(_connection.ConnectionSettings, "GraphInstanceSet");
-            var output = await command.Execute(instanceName, topologyName, paramater);
+            var command = new AvaDirectMethod(_connection.ConnectionSettings, "livePipelineSet");
+            var output = await command.Execute(pipelineName, topologyName, paramater);
 
-            WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName, "updated", "created", " already exists.");
+            WriteResult(output, PIPELINE_LABEL, pipelineName, "updated", "created", " already exists.");
 
             if (output.IsSuccess)
             {
@@ -218,37 +218,37 @@ namespace ava
             }
         }
 
-        public async Task instanceActivateCommandHandler(string instanceName)
+        public async Task pipelineActivateCommandHandler(string pipelineName)
         {
             if (!ValidateConnectionDetails())
                 return;
 
-            var command = new AvaDirectMethod(_connection.ConnectionSettings, "GraphInstanceActivate");
-            var output = await command.Execute(instanceName);
+            var command = new AvaDirectMethod(_connection.ConnectionSettings, "livePipelineActivate");
+            var output = await command.Execute(pipelineName);
 
-            WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName, "activated");
+            WriteResult(output, PIPELINE_LABEL, pipelineName, "activated");
         }
 
-        public async Task instanceDeactivateCommandHandler(string instanceName)
+        public async Task pipelineDeactivateCommandHandler(string pipelineName)
         {
             if (!ValidateConnectionDetails())
                 return;
 
-            var command = new AvaDirectMethod(_connection.ConnectionSettings, "GraphInstanceDeactivate");
-            var output = await command.Execute(instanceName);
+            var command = new AvaDirectMethod(_connection.ConnectionSettings, "livePipelineDeactivate");
+            var output = await command.Execute(pipelineName);
 
-            WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName, "deactivated");
+            WriteResult(output, PIPELINE_LABEL, pipelineName, "deactivated");
         }
 
-        public async Task instanceDeleteCommandHandler(string instanceName)
+        public async Task pipelineDeleteCommandHandler(string pipelineName)
         {
             if (!ValidateConnectionDetails())
                 return;
 
-            var command = new AvaDirectMethod(_connection.ConnectionSettings, "GraphInstanceDelete");
-            var output = await command.Execute(instanceName);
+            var command = new AvaDirectMethod(_connection.ConnectionSettings, "livePipelineDelete");
+            var output = await command.Execute(pipelineName);
 
-            WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName, "deleted", null, $"is in an active state and cannot be deleted. Run '{ROOT_COMMAND_NAME} instance deactivate {instanceName}' to decativate.");
+            WriteResult(output, PIPELINE_LABEL, pipelineName, "deleted", null, $"is in an active state and cannot be deleted. Run '{ROOT_COMMAND_NAME} pipeline deactivate {pipelineName}' to decativate.");
         }
 
         private bool ValidateConnectionDetails()
@@ -307,7 +307,7 @@ namespace ava
             _terminal.Out.WriteLine();
             _terminal.ForegroundColor = ConsoleColor.Blue;
 
-            _terminal.Out.WriteLine("AVA CLI - a simple CLI for Azure Video Analytics");
+            _terminal.Out.WriteLine("AVA CLI - a simple CLI for Azure Video Analyzer");
             _terminal.ResetColor();
             _terminal.Out.WriteLine();
 
@@ -326,15 +326,15 @@ namespace ava
             _terminal.Out.WriteLine("  topology get <topologyName>");
             _terminal.Out.WriteLine("  topology set <toplogyFilePath>");
             _terminal.Out.WriteLine("  topology delete <topologyName>");
-            _terminal.Out.WriteLine("  instance list");
-            _terminal.Out.WriteLine("  instance get <intanceName>");
-            _terminal.Out.WriteLine("  instance set <intanceName> <topologyName> -p <paramName=paramValue1");
-            _terminal.Out.WriteLine("  instance delete <intanceName>");
-            _terminal.Out.WriteLine("  instance activate <intanceName>");
-            _terminal.Out.WriteLine("  instance deactivate <intanceName>");
+            _terminal.Out.WriteLine("  pipeline list");
+            _terminal.Out.WriteLine("  pipeline get <pipelineName>");
+            _terminal.Out.WriteLine("  pipeline set <pipelineName> <topologyName> -p <paramName=paramValue1");
+            _terminal.Out.WriteLine("  pipeline delete <pipelineName>");
+            _terminal.Out.WriteLine("  pipeline activate <pipelineName>");
+            _terminal.Out.WriteLine("  pipeline deactivate <pipelineName>");
 
             _terminal.Out.WriteLine();
-            _terminal.Out.WriteLine("For all of the topology and instance commands, using option -c <connectionString>, -d <deviceId> and/or -m <moduleId> to override the device and module Id specified in the default connection.");
+            _terminal.Out.WriteLine("For all of the topology and pipeline commands, use option -c <connectionString>, -d <deviceId> and/or -m <moduleId> to override the values specified in the default connection. These parameters can also be used to run commands wihout setting connection details.");
             _terminal.Out.WriteLine();
 
 

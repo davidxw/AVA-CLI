@@ -27,7 +27,7 @@ namespace ava
         {
             this.connectionSettings = connectionSettings;
             this.MethodName = methodName;
-            this.ApiVersion = "2.0";
+            this.ApiVersion = "1.0";
         }
 
         public async Task<DirectMethodResponse> Execute()

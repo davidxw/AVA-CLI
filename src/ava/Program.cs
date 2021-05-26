@@ -165,7 +165,7 @@ namespace ava
 
             var instanceListCommand = new Command("list")
             {
-                Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceListCommandHandler)
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.pipelineListCommandHandler)
             };
 
             //instanceListCommand.AddOption(CreateStringOptionWithAliases("--query", "-q", "Optionally apply an ODATA query to the results", ArgumentArity.ZeroOrOne)););
@@ -176,10 +176,10 @@ namespace ava
 
             var instanceGetCommand = new Command("get")
             {
-                Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceGetCommandHandler)
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.pipelineGetCommandHandler)
             };
 
-            instanceGetCommand.AddArgument(new Argument<string>("instanceName", "The name of the instance to get"));
+            instanceGetCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to get"));
 
             instanceCommand.Add(instanceGetCommand);
 
@@ -187,11 +187,11 @@ namespace ava
 
             var instanceSetCommand = new Command("set")
             {
-                Handler = CommandHandler.Create<string, string, string[]>(_avaCommandHandler.instanceSetCommandHandler)
+                Handler = CommandHandler.Create<string, string, string[]>(_avaCommandHandler.pipelineSetCommandHandler)
             };
 
-            instanceSetCommand.AddArgument(new Argument<string>("instanceName", "The name of the instance to set"));
-            instanceSetCommand.AddArgument(new Argument<string>("topologyName", "The name of the topology to use for the instance"));
+            instanceSetCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to set"));
+            instanceSetCommand.AddArgument(new Argument<string>("topologyName", "The name of the topology to use for the pipeline"));
 
             instanceSetCommand.AddOption(CreateStringOptionWithAliases("--paramater", "-p", "A paramater to set on the instaince in the format 'paramName=paramValue'", ArgumentArity.ZeroOrMore));
 
@@ -201,10 +201,10 @@ namespace ava
 
             var instanceActivateCommand = new Command("activate")
             {
-                Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceActivateCommandHandler)
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.pipelineActivateCommandHandler)
             };
 
-            instanceActivateCommand.AddArgument(new Argument<string>("instanceName", "The name of the instance to activate"));
+            instanceActivateCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to activate"));
 
             instanceCommand.Add(instanceActivateCommand);
 
@@ -212,10 +212,10 @@ namespace ava
 
             var instanceDeactivateCommand = new Command("deactivate")
             {
-                Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceDeactivateCommandHandler)
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.pipelineDeactivateCommandHandler)
             };
 
-            instanceDeactivateCommand.AddArgument(new Argument<string>("instanceName", "The name of the instance to deactivate"));
+            instanceDeactivateCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to deactivate"));
 
             instanceCommand.Add(instanceDeactivateCommand);
 
@@ -223,10 +223,10 @@ namespace ava
 
             var instanceDeleteCommand = new Command("delete")
             {
-                Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceDeleteCommandHandler)
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.pipelineDeleteCommandHandler)
             };
 
-            instanceDeleteCommand.AddArgument(new Argument<string>("instanceName", "The name of the instance to delete"));
+            instanceDeleteCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to delete"));
 
             instanceCommand.Add(instanceDeleteCommand);
 
