@@ -57,30 +57,26 @@ namespace ava
             .Build()
             .InvokeAsync(args);
 
+        private static Option CreateStringOptionWithAliases(string alias1, string alias2, string description, IArgumentArity arity)
+        {
+            var option = new Option<string>(alias1, description, arity);
+            option.AddAlias(alias2);
+
+            return option;
+        }
+
         private static CommandLineBuilder BuildCommandLine()
         {
-            // required
-
             _avaCommandHandler = new AvaCommandHandler(new SystemConsole(), new FileConnectionHandler());
 
-            var rootCommand = new RootCommand();
+            var rootCommand = new RootCommand()
+            {
+                Handler = CommandHandler.Create(_avaCommandHandler.rootCommandHandler)
+            };
 
-            var globalOptionConnectionString = new Option<string>("--connectionString", "Override the IoT Hub connection string in connection settings", ArgumentArity.ExactlyOne);
-            globalOptionConnectionString.AddAlias("-c");
-
-            rootCommand.AddGlobalOption(globalOptionConnectionString);
-
-            var globalOptionDeviceId = new Option<string>("--deviceId", "Override the device Id in connection settings", ArgumentArity.ExactlyOne);
-            globalOptionDeviceId.AddAlias("-d");
-
-            rootCommand.AddGlobalOption(globalOptionDeviceId);
-
-            var globalOptionModuleId = new Option<string>("--moduleId", "Override the module Id in connection settings", ArgumentArity.ExactlyOne);
-            globalOptionModuleId.AddAlias("-m");
-
-            rootCommand.AddGlobalOption(globalOptionModuleId);
-
-            rootCommand.Handler = CommandHandler.Create(_avaCommandHandler.rootCommandHandler);
+            rootCommand.AddGlobalOption(CreateStringOptionWithAliases("--connectionString", "-c", "Override the IoT Hub connection string in connection settings", ArgumentArity.ExactlyOne));
+            rootCommand.AddGlobalOption(CreateStringOptionWithAliases("--deviceId", "-d", "Override the device Id in connection settings", ArgumentArity.ExactlyOne));
+            rootCommand.AddGlobalOption(CreateStringOptionWithAliases("--moduleId", "-m", "Override the module Id in connection settings", ArgumentArity.ExactlyOne));
 
             // connection
 
@@ -90,24 +86,22 @@ namespace ava
 
             // connection set
 
-            var connectionSetCommand = new Command("set");
+            var connectionSetCommand = new Command("set")
+            { 
+                Handler = CommandHandler.Create<string, string, string>(_avaCommandHandler.connectionSetCommandHandler) 
+            };
 
-            var ca1 = new Argument<string>("connectionString", "A connection string for the IoTHub");
-            connectionSetCommand.AddArgument(ca1);
-
-            var ca2 = new Argument<string>("deviceId", "The IoT Edge device Id");
-            connectionSetCommand.AddArgument(ca2);
-
-            var ca3 = new Argument<string>("moduleId", "The AVA module Id");
-            connectionSetCommand.AddArgument(ca3);
-
-            connectionSetCommand.Handler = CommandHandler.Create<string, string, string>(_avaCommandHandler.connectionSetCommandHandler);
+            connectionSetCommand.AddArgument(new Argument<string>("connectionString", "A connection string for the IoTHub"));
+            connectionSetCommand.AddArgument(new Argument<string>("deviceId", "The IoT Edge device Id"));
+            connectionSetCommand.AddArgument(new Argument<string>("moduleId", "The AVA module Id"));;
 
             connectCommand.Add(connectionSetCommand);
 
             // connection clear
-            var connectionClearCommand = new Command("clear");
-            connectionClearCommand.Handler = CommandHandler.Create(_avaCommandHandler.connectionClearCommandHandler);
+            var connectionClearCommand = new Command("clear")
+            {
+                Handler = CommandHandler.Create(_avaCommandHandler.connectionClearCommandHandler)
+            };
 
             connectCommand.Add(connectionClearCommand);
 
@@ -115,53 +109,49 @@ namespace ava
 
             var topologyCommand = new Command("topology");
 
-            // TODO - just show help if no subcommands are provided
-
             rootCommand.Add(topologyCommand);
 
             // ## topology list 
 
-            var topologyListCommand = new Command("list");
+            var topologyListCommand = new Command("list")
+            {
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.topologyListCommandHandler)
+            };
 
-            //var tgo = new Option<string>("--query", "Optionally apply an ODATA query to the results", ArgumentArity.ZeroOrOne);
-            //tgo.AddAlias("-q");
-
-            //topologyListCommand.AddOption(tgo);
-
-            topologyListCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.topologyListCommandHandler);
+            //topologyListCommand.AddOption(CreateStringOptionWithAliases("--query", "-q", "Optionally apply an ODATA query to the results", ArgumentArity.ZeroOrOne));
 
             topologyCommand.Add(topologyListCommand);
 
             // ## topology get 
 
-            var topologyGetCommand = new Command("get");
+            var topologyGetCommand = new Command("get")
+            {
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.topologyGetCommandHandler)
+            };
 
-            var tga1 = new Argument<string>("topologyName", "The name of the topology to get");
-            topologyGetCommand.AddArgument(tga1);
-
-            topologyGetCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.topologyGetCommandHandler);
+            topologyGetCommand.AddArgument(new Argument<string>("topologyName", "The name of the topology to get"));
 
             topologyCommand.Add(topologyGetCommand);
 
             // ## topology set 
 
-            var topologySetCommand = new Command("set");
+            var topologySetCommand = new Command("set")
+            {
+                Handler = CommandHandler.Create<FileInfo>(_avaCommandHandler.topologySetCommandHandler)
+            };
 
-            var tsa1 = new Argument<FileInfo>("topologyFile", "A file containing full topology specification");
-            topologySetCommand.AddArgument(tsa1);
-
-            topologySetCommand.Handler = CommandHandler.Create<FileInfo>(_avaCommandHandler.topologySetCommandHandler);
+            topologySetCommand.AddArgument(new Argument<FileInfo>("topologyFile", "A file containing full topology specification"));
 
             topologyCommand.Add(topologySetCommand);
 
             // ## topology delete 
 
-            var topologyDeleteCommand = new Command("delete");
+            var topologyDeleteCommand = new Command("delete")
+            {
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.topologyDeleteCommandHandler)
+            };
 
-            var tda1 = new Argument<string>("topologyName", "The name of the topology to delete");
-            topologyDeleteCommand.AddArgument(tda1);
-
-            topologyDeleteCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.topologyDeleteCommandHandler);
+            topologyDeleteCommand.AddArgument(new Argument<string>("topologyName", "The name of the topology to delete"));
 
             topologyCommand.Add(topologyDeleteCommand);
 
@@ -169,82 +159,74 @@ namespace ava
 
             var instanceCommand = new Command("instance");
 
-            // TODO - just show help if no subcommands are provided
-
             rootCommand.Add(instanceCommand);
 
             // ## instance list 
 
-            var instanceListCommand = new Command("list");
+            var instanceListCommand = new Command("list")
+            {
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceListCommandHandler)
+            };
 
-            //var ilo = new Option<string>("--query", "Optionally apply an ODATA query to the results", ArgumentArity.ZeroOrOne);
-            //ilo.AddAlias("-q");
-
-            //instanceListCommand.AddOption(ilo);
-
-            instanceListCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceListCommandHandler);
+            //instanceListCommand.AddOption(CreateStringOptionWithAliases("--query", "-q", "Optionally apply an ODATA query to the results", ArgumentArity.ZeroOrOne)););
 
             instanceCommand.Add(instanceListCommand);
 
             // ## instance get 
 
-            var instanceGetCommand = new Command("get");
+            var instanceGetCommand = new Command("get")
+            {
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceGetCommandHandler)
+            };
 
-            var iga1 = new Argument<string>("instanceName", "The name of the instance to get");
-            instanceGetCommand.AddArgument(iga1);
-
-            instanceGetCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceGetCommandHandler);
+            instanceGetCommand.AddArgument(new Argument<string>("instanceName", "The name of the instance to get"));
 
             instanceCommand.Add(instanceGetCommand);
 
             // ## instance set 
 
-            var instanceSetCommand = new Command("set");
+            var instanceSetCommand = new Command("set")
+            {
+                Handler = CommandHandler.Create<string, string, string[]>(_avaCommandHandler.instanceSetCommandHandler)
+            };
 
-            var isa1 = new Argument<string>("instanceName", "The name of the instance to set");
-            instanceSetCommand.AddArgument(isa1);
+            instanceSetCommand.AddArgument(new Argument<string>("instanceName", "The name of the instance to set"));
+            instanceSetCommand.AddArgument(new Argument<string>("topologyName", "The name of the topology to use for the instance"));
 
-            var isa2 = new Argument<string>("topologyName", "The name of the topology to use for the instance");
-            instanceSetCommand.AddArgument(isa2);
-
-            var iso1 = new Option<string>("--paramater", "A paramater to set on the instaince in the format 'paramName=paramValue'", ArgumentArity.ZeroOrMore);
-            iso1.AddAlias("-p");
-            instanceSetCommand.AddOption(iso1);
-
-            instanceSetCommand.Handler = CommandHandler.Create<string, string, string[]>(_avaCommandHandler.instanceSetCommandHandler);
+            instanceSetCommand.AddOption(CreateStringOptionWithAliases("--paramater", "-p", "A paramater to set on the instaince in the format 'paramName=paramValue'", ArgumentArity.ZeroOrMore));
 
             instanceCommand.Add(instanceSetCommand);
 
             // ## instance activate 
 
-            var instanceActivateCommand = new Command("activate");
+            var instanceActivateCommand = new Command("activate")
+            {
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceActivateCommandHandler)
+            };
 
-            var iaa1 = new Argument<string>("instanceName", "The name of the instance to activate");
-            instanceActivateCommand.AddArgument(iaa1);
-
-            instanceActivateCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceActivateCommandHandler);
+            instanceActivateCommand.AddArgument(new Argument<string>("instanceName", "The name of the instance to activate"));
 
             instanceCommand.Add(instanceActivateCommand);
 
             // ## instance deactivate 
 
-            var instanceDeactivateCommand = new Command("deactivate");
+            var instanceDeactivateCommand = new Command("deactivate")
+            {
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceDeactivateCommandHandler)
+            };
 
-            var ida1 = new Argument<string>("instanceName", "The name of the instance to deactivate");
-            instanceDeactivateCommand.AddArgument(ida1);
-
-            instanceDeactivateCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceDeactivateCommandHandler);
+            instanceDeactivateCommand.AddArgument(new Argument<string>("instanceName", "The name of the instance to deactivate"));
 
             instanceCommand.Add(instanceDeactivateCommand);
 
             // ## instance delete 
 
-            var instanceDeleteCommand = new Command("delete");
+            var instanceDeleteCommand = new Command("delete")
+            {
+                Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceDeleteCommandHandler)
+            };
 
-            var idea1 = new Argument<string>("instanceName", "The name of the instance to delete");
-            instanceDeleteCommand.AddArgument(idea1);
-
-            instanceDeleteCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceDeleteCommandHandler);
+            instanceDeleteCommand.AddArgument(new Argument<string>("instanceName", "The name of the instance to delete"));
 
             instanceCommand.Add(instanceDeleteCommand);
 
