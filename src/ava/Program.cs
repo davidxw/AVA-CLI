@@ -1,33 +1,74 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Hosting;
+using System.CommandLine.Invocation;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System.CommandLine.Parsing;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
 using System.IO;
-using System.Threading.Tasks;
-using System.Linq;
+using System.CommandLine.IO;
 
 namespace ava
 {
     class Program
     {
-        const string ROOT_COMMAND_NAME = "ava";
+        static List<string> CONNECTIONS_REQUIRED = new List<string> { "topology", "instance" };
 
-        const string CONNECTION_SETTINGS_FILENAME = "connection.json";
+        static IAvaCommandHandler _avaCommandHandler;
 
-        const string GRAPH_TOPOLOGY_LABEL = "Graph topology";
-        const string GRAPH_INSTANCE_LABEL = "Graph instance";
+        static async Task Main(string[] args) => await BuildCommandLine()
+            .UseHost(_ => new HostBuilder(),
+                host =>
+                {
+                    host.ConfigureServices(services =>
+                    {
+                        // TBC
+                    });
+                })
+            .UseMiddleware(async (context, next) =>
+            {
+                if (context.ParseResult.Tokens.Count >= 2 && CONNECTIONS_REQUIRED.Contains(context.ParseResult.Tokens[0].Value))
+                {
+                    if (context.ParseResult.HasOption("-c") && !string.IsNullOrEmpty((string)context.ParseResult.ValueForOption("-c")))
+                    {
+                        _avaCommandHandler.setConnectionString((string)context.ParseResult.ValueForOption("-c"));
+                    }
 
-        static List<string> CONNECTIONS_REQUIRED = new List<String> { "topology", "instance" };
+                    if (context.ParseResult.HasOption("-d") && !string.IsNullOrEmpty((string)context.ParseResult.ValueForOption("-d")))
+                    {
+                        _avaCommandHandler.setDeviceId((string)context.ParseResult.ValueForOption("-d"));
+                    }
 
-        static ConnectionSettings _connectionSettings = null;
+                    if (context.ParseResult.HasOption("-m") && !string.IsNullOrEmpty((string)context.ParseResult.ValueForOption("-m")))
+                    {
+                        _avaCommandHandler.setModuleId((string)context.ParseResult.ValueForOption("-m"));
+                    }
+                }
+                
+                 await next(context);
 
-        static async Task<int> Main(string[] args)
+            })
+            .UseDefaults()
+            .Build()
+            .InvokeAsync(args);
+
+        private static CommandLineBuilder BuildCommandLine()
         {
+            // required
+
+            _avaCommandHandler = new AvaCommandHandler(new SystemConsole(), new FileConnectionHandler());
+
             var rootCommand = new RootCommand();
+
+            var globalOptionConnectionString = new Option<string>("--connectionString", "Override the IoT Hub connection string in connection settings", ArgumentArity.ExactlyOne);
+            globalOptionConnectionString.AddAlias("-c");
+
+            rootCommand.AddGlobalOption(globalOptionConnectionString);
 
             var globalOptionDeviceId = new Option<string>("--deviceId", "Override the device Id in connection settings", ArgumentArity.ExactlyOne);
             globalOptionDeviceId.AddAlias("-d");
@@ -39,7 +80,7 @@ namespace ava
 
             rootCommand.AddGlobalOption(globalOptionModuleId);
 
-            rootCommand.Handler = CommandHandler.Create(rootCommandHandler);
+            rootCommand.Handler = CommandHandler.Create(_avaCommandHandler.rootCommandHandler);
 
             // connection
 
@@ -60,13 +101,13 @@ namespace ava
             var ca3 = new Argument<string>("moduleId", "The AVA module Id");
             connectionSetCommand.AddArgument(ca3);
 
-            connectionSetCommand.Handler = CommandHandler.Create<string, string, string>(connectionSetCommandHandler);
+            connectionSetCommand.Handler = CommandHandler.Create<string, string, string>(_avaCommandHandler.connectionSetCommandHandler);
 
             connectCommand.Add(connectionSetCommand);
 
             // connection clear
             var connectionClearCommand = new Command("clear");
-            connectionClearCommand.Handler = CommandHandler.Create(connectionClearCommandHandler);
+            connectionClearCommand.Handler = CommandHandler.Create(_avaCommandHandler.connectionClearCommandHandler);
 
             connectCommand.Add(connectionClearCommand);
 
@@ -87,7 +128,7 @@ namespace ava
 
             //topologyListCommand.AddOption(tgo);
 
-            topologyListCommand.Handler = CommandHandler.Create<string>(topologyListCommandHandler);
+            topologyListCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.topologyListCommandHandler);
 
             topologyCommand.Add(topologyListCommand);
 
@@ -98,7 +139,7 @@ namespace ava
             var tga1 = new Argument<string>("topologyName", "The name of the topology to get");
             topologyGetCommand.AddArgument(tga1);
 
-            topologyGetCommand.Handler = CommandHandler.Create<string>(topologyGetCommandHandler);
+            topologyGetCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.topologyGetCommandHandler);
 
             topologyCommand.Add(topologyGetCommand);
 
@@ -109,7 +150,7 @@ namespace ava
             var tsa1 = new Argument<FileInfo>("topologyFile", "A file containing full topology specification");
             topologySetCommand.AddArgument(tsa1);
 
-            topologySetCommand.Handler = CommandHandler.Create<FileInfo>(topologySetCommandHandler);
+            topologySetCommand.Handler = CommandHandler.Create<FileInfo>(_avaCommandHandler.topologySetCommandHandler);
 
             topologyCommand.Add(topologySetCommand);
 
@@ -120,7 +161,7 @@ namespace ava
             var tda1 = new Argument<string>("topologyName", "The name of the topology to delete");
             topologyDeleteCommand.AddArgument(tda1);
 
-            topologyDeleteCommand.Handler = CommandHandler.Create<string>(topologyDeleteCommandHandler);
+            topologyDeleteCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.topologyDeleteCommandHandler);
 
             topologyCommand.Add(topologyDeleteCommand);
 
@@ -141,7 +182,7 @@ namespace ava
 
             //instanceListCommand.AddOption(ilo);
 
-            instanceListCommand.Handler = CommandHandler.Create<string>(instanceListCommandHandler);
+            instanceListCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceListCommandHandler);
 
             instanceCommand.Add(instanceListCommand);
 
@@ -152,7 +193,7 @@ namespace ava
             var iga1 = new Argument<string>("instanceName", "The name of the instance to get");
             instanceGetCommand.AddArgument(iga1);
 
-            instanceGetCommand.Handler = CommandHandler.Create<string>(instanceGetCommandHandler);
+            instanceGetCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceGetCommandHandler);
 
             instanceCommand.Add(instanceGetCommand);
 
@@ -170,7 +211,7 @@ namespace ava
             iso1.AddAlias("-p");
             instanceSetCommand.AddOption(iso1);
 
-            instanceSetCommand.Handler = CommandHandler.Create<string, string, string[]>(instanceSetCommandHandler);
+            instanceSetCommand.Handler = CommandHandler.Create<string, string, string[]>(_avaCommandHandler.instanceSetCommandHandler);
 
             instanceCommand.Add(instanceSetCommand);
 
@@ -181,7 +222,7 @@ namespace ava
             var iaa1 = new Argument<string>("instanceName", "The name of the instance to activate");
             instanceActivateCommand.AddArgument(iaa1);
 
-            instanceActivateCommand.Handler = CommandHandler.Create<string>(instanceActivateCommandHandler);
+            instanceActivateCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceActivateCommandHandler);
 
             instanceCommand.Add(instanceActivateCommand);
 
@@ -192,7 +233,7 @@ namespace ava
             var ida1 = new Argument<string>("instanceName", "The name of the instance to deactivate");
             instanceDeactivateCommand.AddArgument(ida1);
 
-            instanceDeactivateCommand.Handler = CommandHandler.Create<string>(instanceDeactivateCommandHandler);
+            instanceDeactivateCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceDeactivateCommandHandler);
 
             instanceCommand.Add(instanceDeactivateCommand);
 
@@ -203,334 +244,11 @@ namespace ava
             var idea1 = new Argument<string>("instanceName", "The name of the instance to delete");
             instanceDeleteCommand.AddArgument(idea1);
 
-            instanceDeleteCommand.Handler = CommandHandler.Create<string>(instanceDeleteCommandHandler);
+            instanceDeleteCommand.Handler = CommandHandler.Create<string>(_avaCommandHandler.instanceDeleteCommandHandler);
 
             instanceCommand.Add(instanceDeleteCommand);
 
-
-            var clb = new CommandLineBuilder(rootCommand);
-            clb.UseDefaults();
-            clb.ResponseFileHandling = System.CommandLine.Parsing.ResponseFileHandling.Disabled;
-
-            clb.UseMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.Tokens.Count >= 2 && CONNECTIONS_REQUIRED.Contains(context.ParseResult.Tokens[0].Value))
-                {
-                    // a connection is required - get connection settings and only proceed if settings are valid
-                    _connectionSettings = GetConnectionSettings();
-
-                    if (_connectionSettings != null)
-                    {
-                        if (context.ParseResult.HasOption("-d") && !string.IsNullOrEmpty((string)context.ParseResult.ValueForOption("-d")))
-                        {
-                            _connectionSettings.DeviceId = (string)context.ParseResult.ValueForOption("-d");
-                        }
-
-                        if (context.ParseResult.HasOption("-m") && !string.IsNullOrEmpty((string)context.ParseResult.ValueForOption("-m")))
-                        {
-                            _connectionSettings.ModuleId = (string)context.ParseResult.ValueForOption("-m");
-                        }
-
-                        await next(context);
-                    }
-                }
-                else
-                {
-                    await next(context);
-                }
-            });
-
-            var parser = clb.Build();
-
-            // Parse the incoming args and invoke the required handler
-            var result = await parser.InvokeAsync(args);
-
-            return result;
+            return new CommandLineBuilder(rootCommand);
         }
-
-        private static void connectionSetCommandHandler(string connectionString, string deviceId, string moduleId)
-        {
-            var connectionSettings = new ConnectionSettings { IoTHubConnectionString = connectionString, DeviceId = deviceId, ModuleId = moduleId };
-
-            File.WriteAllText(GetConnectionSettingsFilePath(), JsonConvert.SerializeObject(connectionSettings));
-
-            Console.WriteLine("Connection details saved");
-        }
-
-        private static void connectionClearCommandHandler()
-        {
-            File.Delete(GetConnectionSettingsFilePath());
-
-            Console.WriteLine("Connection details cleared");
-        }
-
-        private async static Task topologyListCommandHandler(string query)
-        {
-            var command = new AvaCommand(_connectionSettings, "GraphTopologyList");
-            var output = await command.ExecuteList(query);
-
-            if (!output.IsSuccess)
-            {
-                WriteResult(output, GRAPH_TOPOLOGY_LABEL);
-            }
-            else
-            {
-                var f = "{0,-30} {1,-30}";
-
-                Console.WriteLine(String.Format(f, "Name", "Date Created (UTC)"));
-                try
-                {
-                    foreach (var t in output.ResponseBody.value)
-                    {
-                        Console.WriteLine(String.Format(f, t.name, t.systemData.createdAt));
-                    }
-                }
-                catch
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Failed to parse response from AVA. The raw response received was:");
-                    Console.ResetColor();
-                    Console.WriteLine(output.ResponseBodyString);
-                }
-            }
-        }
-
-        private async static Task topologyGetCommandHandler(string topologyName)
-        {
-            var command = new AvaCommand(_connectionSettings, "GraphTopologyGet");
-            var output = await command.Execute(topologyName);
-
-            if (!output.IsSuccess)
-            {
-                WriteResult(output, GRAPH_TOPOLOGY_LABEL, topologyName);
-            }
-            else
-            {
-                Console.WriteLine(output.ResponseBodyString);
-            }
-        }
-
-        private async static Task topologySetCommandHandler(FileInfo topologyFile)
-        {
-            var command = new AvaCommand(_connectionSettings, "GraphTopologySet");
-            var output = await command.Execute(topologyFile);
-
-            WriteResult(output, GRAPH_TOPOLOGY_LABEL);
-        }
-
-        private async static Task topologyDeleteCommandHandler(string topologyName)
-        {
-            var command = new AvaCommand(_connectionSettings, "GraphTopologyDelete");
-            var output = await command.Execute(topologyName);
-
-            WriteResult(output, GRAPH_TOPOLOGY_LABEL, topologyName, "deleted", null, "is being referenced by more than one graph instance and cannot be deleted");
-        }
-
-        private async static Task instanceListCommandHandler(string query)
-        {
-            var command = new AvaCommand(_connectionSettings, "GraphInstanceList");
-            var output = await command.ExecuteList(query);
-
-            if (!output.IsSuccess)
-            {
-                WriteResult(output, GRAPH_INSTANCE_LABEL);
-            }
-            else
-            {
-                var f = "{0,-30} {1,-30} {2, -10} {3, -30}";
-
-                Console.WriteLine(String.Format(f, "Name", "Date Created (UTC)", "State", "Topology"));
-
-                try
-                {
-                    foreach (var t in output.ResponseBody.value)
-                    {
-                        Console.WriteLine(String.Format(f, t.name, t.systemData.createdAt, t.properties.state, t.properties.topologyName));
-                    }
-                }
-                catch
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Failed to parse response from AVA. The raw response received was:");
-                    Console.ResetColor();
-                    Console.WriteLine(output.ResponseBodyString);
-                }
-            }
-        }
-
-        private async static Task instanceGetCommandHandler(string instanceName)
-        {
-            var command = new AvaCommand(_connectionSettings, "GraphInstanceGet");
-            var output = await command.Execute(instanceName);
-
-            if (!output.IsSuccess)
-            {
-                WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName);
-            }
-            else
-            {
-                Console.WriteLine(output.ResponseBodyString);
-            }
-        }
-
-        private async static Task instanceSetCommandHandler(string instanceName, string topologyName, string[] paramater)
-        {
-            var command = new AvaCommand(_connectionSettings, "GraphInstanceSet");
-            var output = await command.Execute(instanceName, topologyName, paramater);
-
-            WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName, "updated", "created", " already exists.");
-
-            if (output.IsSuccess)
-            {
-                Console.WriteLine(output.ResponseBodyString);
-            }
-        }
-
-        private async static Task instanceActivateCommandHandler(string instanceName)
-        {
-            var command = new AvaCommand(_connectionSettings, "GraphInstanceActivate");
-            var output = await command.Execute(instanceName);
-
-            WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName, "activated");
-        }
-
-        private async static Task instanceDeactivateCommandHandler(string instanceName)
-        {
-            var command = new AvaCommand(_connectionSettings, "GraphInstanceDeactivate");
-            var output = await command.Execute(instanceName);
-
-            WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName, "deactivated");
-        }
-
-        private async static Task instanceDeleteCommandHandler(string instanceName)
-        {
-            var command = new AvaCommand(_connectionSettings, "GraphInstanceDelete");
-            var output = await command.Execute(instanceName);
-
-            WriteResult(output, GRAPH_INSTANCE_LABEL, instanceName, "deleted", null, $"is in an active state and cannot be deleted. Run '{ROOT_COMMAND_NAME} instance deactivate {instanceName}' to decativate.");
-        }
-
-        private static ConnectionSettings GetConnectionSettings()
-        {
-            ConnectionSettings connectionSettings = null;
-
-            try
-            {
-                var connectSettingsFileContent = File.ReadAllText(GetConnectionSettingsFilePath());
-
-                if (string.IsNullOrEmpty(connectSettingsFileContent))
-                {
-                    throw (new Exception());
-                }
-
-                connectionSettings = JsonConvert.DeserializeObject<ConnectionSettings>(connectSettingsFileContent);
-
-                if (string.IsNullOrEmpty(connectionSettings.IoTHubConnectionString) || string.IsNullOrEmpty(connectionSettings.DeviceId) || string.IsNullOrEmpty(connectionSettings.ModuleId))
-                {
-                    throw (new Exception());
-                }
-            }
-            catch (Exception)
-            {
-                connectionSettings = null;
-
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine($"No connection details have been specified. Run '{ROOT_COMMAND_NAME} connect'");
-                Console.ResetColor();
-            }
-
-            return connectionSettings;
-        }
-
-        private static void WriteResult(DirectMethodResponse output, string entity, string instanceName = null, string action200 = "updated", string action201 = "created", string message409 = null)
-        {
-            instanceName = string.IsNullOrEmpty(instanceName) ? null : $" {instanceName}";
-
-            switch (output.ResponseCode)
-            {
-                case 0:
-                    Console.WriteLine($"Operation failed - {output.ResponseMessage}");
-                    break;
-                case 200:
-                    Console.WriteLine($"{entity}{instanceName} {action200}.");
-                    break;
-                case 201:
-                    Console.WriteLine($"{entity}{instanceName} {action201}.");
-                    break;
-                case 204:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"{entity}{instanceName} does not exist");
-                    Console.ResetColor();
-                    break;
-                case 409:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"{entity}{instanceName} {message409}");
-                    Console.ResetColor();
-                    break;
-                default:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Operation failed - response code {output.ResponseCode}");
-                    Console.ResetColor();
-                    if (!string.IsNullOrEmpty(output.ResponseBody))
-                        Console.WriteLine(output.ResponseBodyString);
-                    break;
-            }
-        }
-
-        private static string GetConnectionSettingsFilePath()
-        {
-            var connectionSettingFileDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ava-cli");
-
-            Directory.CreateDirectory(connectionSettingFileDir);
-
-            return Path.Combine(connectionSettingFileDir, CONNECTION_SETTINGS_FILENAME);
-        }
-
-
-        private static void rootCommandHandler()
-        {
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine("AVA CLI - a simple CLI for Azure Video Analytics");
-            Console.ResetColor();
-            Console.WriteLine();
-
-            var connectionSettings = GetConnectionSettings();
-
-            if (connectionSettings != null)
-            {
-                Console.WriteLine("Current connection settings:");
-                Console.WriteLine($"  IoT Hub:   {connectionSettings.IoTHubConnectionString}");
-                Console.WriteLine($"  Device Id: {connectionSettings.DeviceId}");
-                Console.WriteLine($"  Module Id: {connectionSettings.ModuleId}");
-            }
-
-            Console.WriteLine();
-
-            Console.WriteLine("Commands:");
-            Console.WriteLine("  connection set <connectionString> <deviceId> <moduleId>");
-            Console.WriteLine("  connection clear");
-            Console.WriteLine("  topology list");
-            Console.WriteLine("  topology get <topologyName>");
-            Console.WriteLine("  topology set <toplogyFilePath>");
-            Console.WriteLine("  topology delete <topologyName>");
-            Console.WriteLine("  instance list");
-            Console.WriteLine("  instance get <intanceName>");
-            Console.WriteLine("  instance set <intanceName> <topologyName> -p <paramName=paramValue1");
-            Console.WriteLine("  instance delete <intanceName>");
-            Console.WriteLine("  instance activate <intanceName>");
-            Console.WriteLine("  instance deactivate <intanceName>");
-
-            Console.WriteLine();
-            Console.WriteLine("For all of the topology and instance commands, using option -d <deviceId> and/or -m <moduleId> to override the device and module Id specified in the default connection.");
-            Console.WriteLine();
-                
-
-            Console.WriteLine("Use the -h, -? option on any command for more details");
-
-            Console.WriteLine();
-
-        }
-
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -10,16 +12,11 @@ namespace ava
 {
     public class DirectMethodResponse
     {
-        public int ResponseCode { get; set; }
+        public int ResponseCode { get; private set; }
 
         public string ResponseBodyString {
-            get
-            {
-                return JsonConvert.SerializeObject(ResponseBody, Formatting.Indented);
-            }
+            get; private set;
         }
-
-        public string ResponseMessage { get; set; }
 
         public bool IsSuccess 
         {
@@ -29,14 +26,30 @@ namespace ava
             }
         }
 
-        public dynamic ResponseBody { get; set; }
+        public dynamic ResponseBody {
+            get; private set;
+        }
 
         public DirectMethodResponse() { }
 
         public DirectMethodResponse(int code, string body)
         {
             this.ResponseCode = code;
-            this.ResponseBody = JsonConvert.DeserializeObject<ExpandoObject>(body);
+
+            this.ResponseBodyString = body;
+
+            dynamic responseBody = null;
+            try
+            {
+                responseBody = JsonConvert.DeserializeObject<ExpandoObject>(ResponseBodyString);
+
+                this.ResponseBody = responseBody;
+
+                ResponseBodyString = JsonConvert.SerializeObject(responseBody, Formatting.Indented);
+
+
+            }
+            catch { }
         }
 
         public override string ToString()

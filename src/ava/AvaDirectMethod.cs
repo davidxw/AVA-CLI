@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ava
 {
-    public class AvaCommand
+    public class AvaDirectMethod
     {
         private const string NAME_COMMAND_TEMPLATE = "{{'@apiVersion':'{0}','name':'{1}'}}";
         private const string SIMPLE_COMMAND_TEMPLATE = "{{'@apiVersion':'{0}'}}";
@@ -23,7 +23,7 @@ namespace ava
 
         public string ApiVersion { get; set; }
 
-        public AvaCommand(ConnectionSettings connectionSettings, string methodName)
+        public AvaDirectMethod(ConnectionSettings connectionSettings, string methodName)
         {
             this.connectionSettings = connectionSettings;
             this.MethodName = methodName;
@@ -54,7 +54,7 @@ namespace ava
 
                 if (paramaterPair.Length != 2)
                 {
-                    return new DirectMethodResponse { ResponseCode = 0, ResponseMessage = "Paramater list is invalid - paramaters should be expressed in the format 'paramName=paramValue'" };
+                    return new DirectMethodResponse (0, "Paramater list is invalid - paramaters should be expressed in the format 'paramName=paramValue'");
                 }
 
                 paramCollection.Add($"{{'name':'{paramaterPair[0]}','value':'{paramaterPair[1]}'}}");
@@ -83,7 +83,7 @@ namespace ava
         {
             if (!File.Exists(commandFile.FullName))
             {
-                return new DirectMethodResponse { ResponseCode = 0, ResponseMessage = $"Topology file {commandFile.FullName} does not exist"};
+                return new DirectMethodResponse (0, $"Topology file {commandFile.FullName} does not exist");
             }
 
             var payload = File.ReadAllText(commandFile.FullName);
