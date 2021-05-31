@@ -4,8 +4,6 @@ using System.CommandLine;
 using System.CommandLine.IO;
 using System.CommandLine.Rendering;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ava

@@ -1,35 +1,21 @@
-﻿using System.CommandLine;
+﻿using System.Collections.Generic;
+using System.CommandLine;
 using System.CommandLine.Builder;
-using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System.CommandLine.Parsing;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-using System;
-using System.IO;
 using System.CommandLine.IO;
+using System.CommandLine.Parsing;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace ava
 {
     class Program
     {
-        static List<string> CONNECTIONS_REQUIRED = new List<string> { "topology", "instance" };
+        static List<string> CONNECTIONS_REQUIRED = new List<string> { "topology", "pipeline" };
 
         static IAvaCommandHandler _avaCommandHandler;
 
         static async Task Main(string[] args) => await BuildCommandLine()
-            .UseHost(_ => new HostBuilder(),
-                host =>
-                {
-                    host.ConfigureServices(services =>
-                    {
-                        // TBC
-                    });
-                })
             .UseMiddleware(async (context, next) =>
             {
                 if (context.ParseResult.Tokens.Count >= 2 && CONNECTIONS_REQUIRED.Contains(context.ParseResult.Tokens[0].Value))
@@ -57,14 +43,6 @@ namespace ava
             .Build()
             .InvokeAsync(args);
 
-        private static Option CreateStringOptionWithAliases(string alias1, string alias2, string description, IArgumentArity arity)
-        {
-            var option = new Option<string>(alias1, description, arity);
-            option.AddAlias(alias2);
-
-            return option;
-        }
-
         private static CommandLineBuilder BuildCommandLine()
         {
             _avaCommandHandler = new AvaCommandHandler(new SystemConsole(), new FileConnectionHandler());
@@ -78,7 +56,7 @@ namespace ava
             rootCommand.AddGlobalOption(CreateStringOptionWithAliases("--deviceId", "-d", "Override the device Id in connection settings", ArgumentArity.ExactlyOne));
             rootCommand.AddGlobalOption(CreateStringOptionWithAliases("--moduleId", "-m", "Override the module Id in connection settings", ArgumentArity.ExactlyOne));
 
-            // connection
+            // ######### connection
 
             var connectCommand = new Command("connection");
 
@@ -155,82 +133,90 @@ namespace ava
 
             topologyCommand.Add(topologyDeleteCommand);
 
-            // ######### instance 
+            // ######### pipeline 
 
-            var instanceCommand = new Command("instance");
+            var pipelineCommand = new Command("pipeline");
 
-            rootCommand.Add(instanceCommand);
+            rootCommand.Add(pipelineCommand);
 
-            // ## instance list 
+            // ## pipeline list 
 
-            var instanceListCommand = new Command("list")
+            var pipelineListCommand = new Command("list")
             {
                 Handler = CommandHandler.Create<string>(_avaCommandHandler.pipelineListCommandHandler)
             };
 
-            //instanceListCommand.AddOption(CreateStringOptionWithAliases("--query", "-q", "Optionally apply an ODATA query to the results", ArgumentArity.ZeroOrOne)););
+            //pipelineListCommand.AddOption(CreateStringOptionWithAliases("--query", "-q", "Optionally apply an ODATA query to the results", ArgumentArity.ZeroOrOne)););
 
-            instanceCommand.Add(instanceListCommand);
+            pipelineCommand.Add(pipelineListCommand);
 
-            // ## instance get 
+            // ## pipeline get 
 
-            var instanceGetCommand = new Command("get")
+            var pipelineGetCommand = new Command("get")
             {
                 Handler = CommandHandler.Create<string>(_avaCommandHandler.pipelineGetCommandHandler)
             };
 
-            instanceGetCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to get"));
+            pipelineGetCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to get"));
 
-            instanceCommand.Add(instanceGetCommand);
+            pipelineCommand.Add(pipelineGetCommand);
 
-            // ## instance set 
+            // ## pipeline set 
 
-            var instanceSetCommand = new Command("set")
+            var pipelineSetCommand = new Command("set")
             {
                 Handler = CommandHandler.Create<string, string, string[]>(_avaCommandHandler.pipelineSetCommandHandler)
             };
 
-            instanceSetCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to set"));
-            instanceSetCommand.AddArgument(new Argument<string>("topologyName", "The name of the topology to use for the pipeline"));
+            pipelineSetCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to set"));
+            pipelineSetCommand.AddArgument(new Argument<string>("topologyName", "The name of the topology to use for the pipeline"));
 
-            instanceSetCommand.AddOption(CreateStringOptionWithAliases("--paramater", "-p", "A paramater to set on the instaince in the format 'paramName=paramValue'", ArgumentArity.ZeroOrMore));
+            pipelineSetCommand.AddOption(CreateStringOptionWithAliases("--paramater", "-p", "A paramater to set on the pipeline in the format 'paramName=paramValue'", ArgumentArity.ZeroOrMore));
 
-            instanceCommand.Add(instanceSetCommand);
+            pipelineCommand.Add(pipelineSetCommand);
 
-            // ## instance activate 
+            // ## pipeline activate 
 
-            var instanceActivateCommand = new Command("activate")
+            var pipelineActivateCommand = new Command("activate")
             {
                 Handler = CommandHandler.Create<string>(_avaCommandHandler.pipelineActivateCommandHandler)
             };
 
-            instanceActivateCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to activate"));
+            pipelineActivateCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to activate"));
 
-            instanceCommand.Add(instanceActivateCommand);
+            pipelineCommand.Add(pipelineActivateCommand);
 
-            // ## instance deactivate 
+            // ## pipeline deactivate 
 
-            var instanceDeactivateCommand = new Command("deactivate")
+            var pipelineDeactivateCommand = new Command("deactivate")
             {
                 Handler = CommandHandler.Create<string>(_avaCommandHandler.pipelineDeactivateCommandHandler)
             };
 
-            instanceDeactivateCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to deactivate"));
+            pipelineDeactivateCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to deactivate"));
 
-            instanceCommand.Add(instanceDeactivateCommand);
+            pipelineCommand.Add(pipelineDeactivateCommand);
 
-            // ## instance delete 
+            // ## pipeline delete 
 
-            var instanceDeleteCommand = new Command("delete")
+            var pipelineDeleteCommand = new Command("delete")
             {
                 Handler = CommandHandler.Create<string>(_avaCommandHandler.pipelineDeleteCommandHandler)
             };
 
-            instanceDeleteCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to delete"));
+            pipelineDeleteCommand.AddArgument(new Argument<string>("pipelineName", "The name of the pipeline to delete"));
 
-            instanceCommand.Add(instanceDeleteCommand);
+            pipelineCommand.Add(pipelineDeleteCommand);
 
             return new CommandLineBuilder(rootCommand);
+        }
+
+        private static Option CreateStringOptionWithAliases(string alias1, string alias2, string description, IArgumentArity arity)
+        {
+            var option = new Option<string>(alias1, description, arity);
+            option.AddAlias(alias2);
+
+            return option;
         }
     }
 }
