@@ -2,7 +2,7 @@
 
 ![Build and Release](https://github.com/davidxw/ava-cli/actions/workflows/dotnet.yml/badge.svg)
 
-A simple CLI for managing graph topologies and graph instances in Azure Video Analytics. The CLI implements the AVA module direct commands described in the AVA direct methods [docuemntation page](https://docs.microsoft.com/en-us/azure/media-services/live-video-analytics-edge/direct-methods).
+A simple CLI for managing pipeline topologies and pipelines in Azure Video Analyzer. The CLI implements the AVA module direct commands described in the AVA direct methods [docuemntation page](https://docs.microsoft.com/en-us/azure/azure-video-analyzer/video-analyzer-docs/direct-methods).
 
 
 ## Usage
@@ -19,14 +19,14 @@ topology get \<topologyName\>
 topology set \<toplogyFilePath\>  
 topology delete \<topologyName\>
 
-instance list 
-instance get \<intanceName\>  
-instance set \<intanceName\> \<topologyName\> -p paramName1=paramValue1  
-instance delete \<intanceName\>  
-instance activate \<intanceName\>  
-instance deactivate \<intanceName\> 
+pipeline list 
+pipeline get \<intanceName\>  
+pipeline set \<intanceName\> \<topologyName\> -p paramName1=paramValue1  
+pipeline delete \<intanceName\>  
+pipeline activate \<intanceName\>  
+pipeline deactivate \<intanceName\> 
 
-For all of the topology and instance commands, using option -d \<deviceId\> and/or -m \<moduleId\> to override the device and module Id specified in the default connection. This can be useful if you need to script AVA commands accross a number of devices.
+For all of the topology and pipeline commands, using options -c \<connectionString\>, -d \<deviceId\> and/or -m \<moduleId\> to override the device and module Id specified in the default connection. This can be useful if you need to script AVA commands accross a number of devices, or if you don't want to persist connection settings using ava connection set.
 
 ## Installation
 * Download the latst release from the [releases](https://github.com/davidxw/AVA-CLI/releases) page

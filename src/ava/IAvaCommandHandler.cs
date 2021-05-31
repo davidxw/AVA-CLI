@@ -29,17 +29,17 @@ namespace ava
 
         Task topologyDeleteCommandHandler(string topologyName);
 
-        Task instanceListCommandHandler(string query);
+        Task pipelineListCommandHandler(string query);
 
-        Task instanceGetCommandHandler(string instanceName);
+        Task pipelineGetCommandHandler(string pipelineName);
 
-        Task instanceSetCommandHandler(string instanceName, string topologyName, string[] paramater);
+        Task pipelineSetCommandHandler(string pipelineName, string topologyName, string[] paramater);
 
-        Task instanceActivateCommandHandler(string instanceName);
+        Task pipelineActivateCommandHandler(string pipelineName);
 
-        Task instanceDeactivateCommandHandler(string instanceName);
+        Task pipelineDeactivateCommandHandler(string pipelineName);
 
-        Task instanceDeleteCommandHandler(string instanceName);
+        Task pipelineDeleteCommandHandler(string pipelineName);
 
 
 
