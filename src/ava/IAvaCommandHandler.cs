@@ -21,7 +21,7 @@ namespace ava
 
         void setModuleId(string moduleId);
 
-        Task topologyListCommandHandler(string query);
+        Task topologyListCommandHandler();
 
         Task topologyGetCommandHandler(string topologyName);
 
@@ -29,7 +29,7 @@ namespace ava
 
         Task topologyDeleteCommandHandler(string topologyName);
 
-        Task pipelineListCommandHandler(string query);
+        Task pipelineListCommandHandler();
 
         Task pipelineGetCommandHandler(string pipelineName);
 

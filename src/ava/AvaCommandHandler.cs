@@ -62,7 +62,7 @@ namespace ava
             _terminal.Out.WriteLine("Connection details saved");
         }
 
-        public async Task topologyListCommandHandler(string query)
+        public async Task topologyListCommandHandler()
         {
             if (!ValidateConnectionDetails())
                 return;
@@ -71,7 +71,7 @@ namespace ava
                 _connection.ConnectionSettings, 
                 "pipelineTopologyList");
 
-            var output = await command.ExecuteList(query);
+            var output = await command.Execute();
 
             if (!output.IsSuccess)
             {
@@ -143,13 +143,13 @@ namespace ava
             WriteResult(output, PIPELINE_TOPOLOGY_LABEL, topologyName, "deleted", null, "is being referenced by more than one pipeline and cannot be deleted");
         }
 
-        public async Task pipelineListCommandHandler(string query)
+        public async Task pipelineListCommandHandler()
         {
             if (!ValidateConnectionDetails())
                 return;
 
             var command = new AvaDirectMethod(_connection.ConnectionSettings, "livePipelineList");
-            var output = await command.ExecuteList(query);
+            var output = await command.Execute();
 
             if (!output.IsSuccess)
             {

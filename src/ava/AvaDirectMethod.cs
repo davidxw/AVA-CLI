@@ -10,7 +10,6 @@ namespace ava
     {
         private const string NAME_COMMAND_TEMPLATE = "{{'@apiVersion':'{0}','name':'{1}'}}";
         private const string SIMPLE_COMMAND_TEMPLATE = "{{'@apiVersion':'{0}'}}";
-        private const string LIST_COMMAND_TEMPLATE = "{{'@apiVersion':'{0}', '@query':'{1}'}}";
         private const string INSTANCE_SET_COMMAND_TEMPLATE = "{{'@apiVersion':'{0}','name':'{1}','properties':{{'topologyName':'{2}','parameters':[{3}]}}}}";
 
         private ConnectionSettings connectionSettings;
@@ -59,18 +58,6 @@ namespace ava
             var paramString = string.Join(",", paramCollection);
 
             var payload = string.Format(INSTANCE_SET_COMMAND_TEMPLATE, ApiVersion, nameProperty, instanceNameProperty, paramString);
-
-            return await InvokeMethodWithPayloadAsync(MethodName, payload);
-        }
-
-        public async Task<DirectMethodResponse> ExecuteList(string query)
-        {
-            if (string.IsNullOrEmpty(query))
-            {
-                return await Execute();     
-            }
-
-            var payload = string.Format(LIST_COMMAND_TEMPLATE, ApiVersion, query);
 
             return await InvokeMethodWithPayloadAsync(MethodName, payload);
         }

@@ -93,10 +93,8 @@ namespace ava
 
             var topologyListCommand = new Command("list")
             {
-                Handler = CommandHandler.Create<string>(_avaCommandHandler.topologyListCommandHandler)
+                Handler = CommandHandler.Create(_avaCommandHandler.topologyListCommandHandler)
             };
-
-            //topologyListCommand.AddOption(CreateStringOptionWithAliases("--query", "-q", "Optionally apply an ODATA query to the results", ArgumentArity.ZeroOrOne));
 
             topologyCommand.Add(topologyListCommand);
 
@@ -143,10 +141,8 @@ namespace ava
 
             var pipelineListCommand = new Command("list")
             {
-                Handler = CommandHandler.Create<string>(_avaCommandHandler.pipelineListCommandHandler)
+                Handler = CommandHandler.Create(_avaCommandHandler.pipelineListCommandHandler)
             };
-
-            //pipelineListCommand.AddOption(CreateStringOptionWithAliases("--query", "-q", "Optionally apply an ODATA query to the results", ArgumentArity.ZeroOrOne)););
 
             pipelineCommand.Add(pipelineListCommand);
 
