@@ -32,7 +32,7 @@ For all of the topology and pipeline commands, using options -c \<connectionStri
 
 Set up a connection to Edge device 'edgeDevice1', AVA module 'avaedge':
 
-`ava connection set <connectionString> edgeDevice1 avaedge`
+`ava connection set "IOT hub connection string" edgeDevice1 avaedge`
 
 Create topology from file topology.json:
 
@@ -44,7 +44,7 @@ Create topology from file topology.json, but override the topology name in the f
 
 Create a pipeline called 'rtsp-sim' using topology 'topName', and set parameter 'rtspUrl':
 
-`ava pipeline set rtsp-sim topName -p  -p "rtspUrl=rtsp://rtspsim:554/media/windows.mkv"`
+`ava pipeline set rtsp-sim topName -p "rtspUrl=rtsp://rtspsim:554/media/windows.mkv"`
 
 Activate the pipeline 'rtsp-sim':
 
