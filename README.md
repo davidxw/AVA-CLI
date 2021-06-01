@@ -11,20 +11,20 @@ ava \<command(s)\> \<parameters(s)\> \<options(s)\>
 
 ### Commands
 
-connection set \<connectionString\> \<deviceId\> \<moduleId\>  
-connection clear
+`connection set <connectionString> <deviceId> <moduleId>`  
+`connection clear`  
 
-topology list  
-topology get \<topologyName\>  
-topology set \<toplogyFilePath\> -n topologyName (optional)  
-topology delete \<topologyName\>
+`topology list`  
+`topology get <topologyName>`  
+`topology set <toplogyFilePath> -n topologyName (optional)`    
+`topology delete <topologyName>`  
 
-pipeline list  
-pipeline get \<intanceName\>  
-pipeline set \<intanceName\> \<topologyName\> -p paramName1=paramValue1  
-pipeline delete \<intanceName\>  
-pipeline activate \<intanceName\>  
-pipeline deactivate \<intanceName\> 
+`pipeline list`  
+`pipeline get <intanceName>`  
+`pipeline set <intanceName> <topologyName> -p paramName1=paramValue1`  
+`pipeline delete <intanceName>`  
+`pipeline activate <intanceName>`  
+`pipeline deactivate <intanceName>`  
 
 For all of the topology and pipeline commands, using options -c \<connectionString\>, -d \<deviceId\> and/or -m \<moduleId\> to override the device and module Id specified in the default connection. This can be useful if you need to script AVA commands accross a number of devices, or if you don't want to persist connection settings using ava connection set.
 
