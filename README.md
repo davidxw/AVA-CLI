@@ -14,12 +14,12 @@ ava \<command(s)\> \<parameters(s)\> \<options(s)\>
 connection set \<connectionString\> \<deviceId\> \<moduleId\>  
 connection clear
 
-topology list 
+topology list  
 topology get \<topologyName\>  
-topology set \<toplogyFilePath\>  
+topology set \<toplogyFilePath\> -n topologyName (optional)  
 topology delete \<topologyName\>
 
-pipeline list 
+pipeline list  
 pipeline get \<intanceName\>  
 pipeline set \<intanceName\> \<topologyName\> -p paramName1=paramValue1  
 pipeline delete \<intanceName\>  
