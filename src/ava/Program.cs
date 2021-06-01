@@ -113,10 +113,11 @@ namespace ava
 
             var topologySetCommand = new Command("set")
             {
-                Handler = CommandHandler.Create<FileInfo>(_avaCommandHandler.topologySetCommandHandler)
+                Handler = CommandHandler.Create<FileInfo, string>(_avaCommandHandler.topologySetCommandHandler)
             };
 
             topologySetCommand.AddArgument(new Argument<FileInfo>("topologyFile", "A file containing full topology specification"));
+            topologySetCommand.AddOption(CreateStringOptionWithAliases("--topologyName", "-n", "Override the name of topology", ArgumentArity.ZeroOrOne));
 
             topologyCommand.Add(topologySetCommand);
 

@@ -121,15 +121,15 @@ namespace ava
             }
         }
 
-        public async Task topologySetCommandHandler(FileInfo topologyFile)
+        public async Task topologySetCommandHandler(FileInfo topologyFile, string topologyName)
         {
             if (!ValidateConnectionDetails())
                 return;
 
             var command = new AvaDirectMethod(_connection.ConnectionSettings, "pipelineTopologySet");
-            var output = await command.Execute(topologyFile);
+            var output = await command.Execute(topologyFile, topologyName);
 
-            WriteResult(output, PIPELINE_TOPOLOGY_LABEL);
+            WriteResult(output, PIPELINE_TOPOLOGY_LABEL, output.EntityName);
         }
 
         public async Task topologyDeleteCommandHandler(string topologyName)
@@ -322,11 +322,11 @@ namespace ava
             _terminal.Out.WriteLine("  connection clear");
             _terminal.Out.WriteLine("  topology list");
             _terminal.Out.WriteLine("  topology get <topologyName>");
-            _terminal.Out.WriteLine("  topology set <toplogyFilePath>");
+            _terminal.Out.WriteLine("  topology set <toplogyFilePath> -n topologyName (optional)");
             _terminal.Out.WriteLine("  topology delete <topologyName>");
             _terminal.Out.WriteLine("  pipeline list");
             _terminal.Out.WriteLine("  pipeline get <pipelineName>");
-            _terminal.Out.WriteLine("  pipeline set <pipelineName> <topologyName> -p <paramName=paramValue1");
+            _terminal.Out.WriteLine("  pipeline set <pipelineName> <topologyName> -p <paramName=paramValue1> (optional, can set multiple parameters) ");
             _terminal.Out.WriteLine("  pipeline delete <pipelineName>");
             _terminal.Out.WriteLine("  pipeline activate <pipelineName>");
             _terminal.Out.WriteLine("  pipeline deactivate <pipelineName>");

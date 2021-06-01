@@ -25,7 +25,7 @@ namespace ava
 
         Task topologyGetCommandHandler(string topologyName);
 
-        Task topologySetCommandHandler(FileInfo topologyFile);
+        Task topologySetCommandHandler(FileInfo topologyFile, string topologyName);
 
         Task topologyDeleteCommandHandler(string topologyName);
 

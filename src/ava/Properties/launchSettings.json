@@ -2,7 +2,7 @@
   "profiles": {
     "ava": {
       "commandName": "Project",
-      "commandLineArgs": "topology list"
+      "commandLineArgs": "topology set ..\\..\\..\\topology.json -n testTopName"
     }
   }
 }

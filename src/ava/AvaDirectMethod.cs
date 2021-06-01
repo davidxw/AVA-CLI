@@ -1,6 +1,8 @@
 ﻿using Microsoft.Azure.Devices;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -62,16 +64,38 @@ namespace ava
             return await InvokeMethodWithPayloadAsync(MethodName, payload);
         }
 
-        public async Task<DirectMethodResponse> Execute(FileInfo commandFile)
+        public async Task<DirectMethodResponse> Execute(FileInfo topologyFile, string topologyName)
         {
-            if (!File.Exists(commandFile.FullName))
+            if (!File.Exists(topologyFile.FullName))
             {
-                return new DirectMethodResponse (0, $"Topology file {commandFile.FullName} does not exist");
+                return new DirectMethodResponse (0, $"Topology file {topologyFile.FullName} does not exist");
             }
 
-            var payload = File.ReadAllText(commandFile.FullName);
+            var payload = File.ReadAllText(topologyFile.FullName);
 
-            return await InvokeMethodWithPayloadAsync(MethodName, payload);
+            // load payload into dynamic object so we can query the topology name, as well as override
+            dynamic topologyFileJson;
+
+            try
+            {
+                topologyFileJson = JsonConvert.DeserializeObject<ExpandoObject>(payload);
+            }
+            catch (Exception ex)
+            {
+                return new DirectMethodResponse(0, $"Failed to parse topology file {topologyFile.FullName} - {ex.Message}");
+            }
+
+            if (!string.IsNullOrEmpty(topologyName))
+            {
+                topologyFileJson.name = topologyName;
+                payload = JsonConvert.SerializeObject(topologyFileJson);
+            }
+
+            var output = await InvokeMethodWithPayloadAsync(MethodName, payload);
+
+            output.EntityName = topologyFileJson.name;
+
+            return output;
         }
 
         private async Task<DirectMethodResponse> InvokeMethodWithPayloadAsync(string methodName, string payload)

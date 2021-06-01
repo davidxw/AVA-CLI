@@ -12,6 +12,8 @@ namespace ava
             get; private set;
         }
 
+        public string EntityName {get; set; }
+
         public bool IsSuccess => ResponseCode <= 204;
 
         public dynamic ResponseBody {
