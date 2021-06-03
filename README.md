@@ -59,4 +59,3 @@ Create topology from file topology.json on device 'edgeDevice2' (using the previ
 ## Installation
 * Download the latst release from the [releases](https://github.com/davidxw/AVA-CLI/releases) page
 * Extract the files from the release into a folder, and create a PATH to the folder
-* (a more automated release process coming soon!!!!)
